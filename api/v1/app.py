@@ -1,14 +1,16 @@
 #!/usr/bin/python3
 """A flask web application API"""
+import os
 from flask import Flask
+
 from models import storage
 from api.v1.views import app_views
 
 
 app = Flask(__name__)
 """A Flask Web application instance"""
-app.register_blueprint(app_views)
 app.url_map.strict_slashes = False
+app.register_blueprint(app_views)
 
 
 @app.teardown_appcontext
