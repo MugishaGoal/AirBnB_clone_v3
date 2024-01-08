@@ -86,3 +86,66 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+
+    def test_get(self):
+        """Test that get returns an object of a given class by id."""
+        storage = models.storage
+        state_instance = State(name='Colorado')
+        state_instance.save()
+        
+        # Check if the retrieved object has the same attributes as the original object
+        retrieved_state = storage.get(State, state_instance.id)
+        self.assertEqual(state_instance.id, retrieved_state.id)
+        self.assertEqual(state_instance.name, retrieved_state.name)
+
+        # Check behavior for non-existent objects or invalid input
+        self.assertIsNot(state_instance, storage.get(State, state_instance.id + 42))
+        self.assertIsNone(storage.get(State, state_instance.id + 42))
+        self.assertIsNone(storage.get(State, 45))
+        self.assertIsNone(storage.get(None, state_instance.id))
+        self.assertIsNone(storage.get(int, state_instance.id))
+
+        # Check for expected errors
+        with self.assertRaises(TypeError):
+            storage.get(State, state_instance.id, 42)
+        with self.assertRaises(TypeError):
+            storage.get(State)
+        with self.assertRaises(TypeError):
+            storage.get()
+
+    def test_count(self):
+        """Test that count returns the number of objects of a given class."""
+        storage = models.storage
+
+        # Check if count returns an integer
+        self.assertIs(type(storage.count()), int)
+        self.assertIs(type(storage.count(None)), int)
+        self.assertIs(type(storage.count(int)), int)
+        self.assertIs(type(storage.count(State)), int)
+
+        # Check if count(None) is equivalent to count()
+        self.assertEqual(storage.count(), storage.count(None))
+
+        # Check if count increases when objects are added
+        initial_state_count = storage.count(State)
+        State(name='Kigali').save()
+        self.assertGreater(storage.count(State), initial_state_count)
+        self.assertEqual(storage.count(), storage.count(None))
+
+        # Check if count increases when objects are added
+        initial_state_count = storage.count(State)
+        State(name='Cairo').save()
+        self.assertGreater(storage.count(State), initial_state_count)
+        self.assertEqual(storage.count(), storage.count(None))
+
+        # Check if count increases with additional objects of different classes
+        x = storage.count(State)
+        State(name='Bujumbura').save()
+        self.assertGreater(storage.count(State), a)
+
+        Amenity(name='Free Pool').save()
+        self.assertGreater(storage.count(), storage.count(State))
+
+        # Check for expected errors
+        with self.assertRaises(TypeError):
+            storage.count(State, 42)
