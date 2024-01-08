@@ -141,7 +141,7 @@ class TestFileStorage(unittest.TestCase):
         # Check if count increases with additional objects of different classes
         x = storage.count(State)
         State(name='Bujumbura').save()
-        self.assertGreater(storage.count(State), a)
+        self.assertGreater(storage.count(State), x)
 
         Amenity(name='Free Pool').save()
         self.assertGreater(storage.count(), storage.count(State))
