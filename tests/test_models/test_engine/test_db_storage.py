@@ -88,38 +88,37 @@ class TestFileStorage(unittest.TestCase):
         """Test that save properly saves objects to file.json"""
 
     def test_get(self):
-        """Test that get returns an object of a given class by id."""
+        """Test that the get method retrieves objects by ID from storage."""
+        # Initialize storage and create a State object for testing
         storage = models.storage
-        state_instance = State(name='Colorado')
-        state_instance.save()
+        obj = State(name='Michigan')
+        obj.save()
 
-        # Check if the retrieved object has the same attributes as an original
-        retrieved_state = storage.get(State, state_instance.id)
-        self.assertEqual(state_instance.id, retrieved_state.id)
-        self.assertEqual(state_instance.name, retrieved_state.name)
+        # Check if get method retrieves the correct object by ID
+        self.assertEqual(obj.id, storage.get(State, obj.id).id)
+        self.assertEqual(obj.name, storage.get(State, obj.id).name)
 
         # Check behavior for non-existent objects or invalid input
-        self.assertIsNot(
-                state_instance, storage.get(State, state_instance.id + 42)
-        )
-        self.assertIsNone(storage.get(State, state_instance.id + 42))
+        self.assertIsNot(obj, storage.get(State, obj.id + 'op'))
+        self.assertIsNone(storage.get(State, obj.id + 'op'))
         self.assertIsNone(storage.get(State, 45))
-        self.assertIsNone(storage.get(None, state_instance.id))
-        self.assertIsNone(storage.get(int, state_instance.id))
+        self.assertIsNone(storage.get(None, obj.id))
+        self.assertIsNone(storage.get(int, obj.id))
 
         # Check for expected errors
         with self.assertRaises(TypeError):
-            storage.get(State, state_instance.id, 42)
+            storage.get(State, obj.id, 'op')
         with self.assertRaises(TypeError):
             storage.get(State)
         with self.assertRaises(TypeError):
             storage.get()
 
     def test_count(self):
-        """Test that count returns the number of objects of a given class."""
+        """Test that the count method returns the number of objects"""
+        # Initialize storage
         storage = models.storage
 
-        # Check if count returns an integer
+        # Check if count method returns an integer
         self.assertIs(type(storage.count()), int)
         self.assertIs(type(storage.count(None)), int)
         self.assertIs(type(storage.count(int)), int)
@@ -129,25 +128,18 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(storage.count(), storage.count(None))
 
         # Check if count increases when objects are added
-        initial_state_count = storage.count(State)
-        State(name='Kigali').save()
-        self.assertGreater(storage.count(State), initial_state_count)
-        self.assertEqual(storage.count(), storage.count(None))
-
-        # Check if count increases when objects are added
-        initial_state_count = storage.count(State)
-        State(name='Cairo').save()
-        self.assertGreater(storage.count(State), initial_state_count)
+        State(name='Lagos').save()
+        self.assertGreater(storage.count(State), 0)
         self.assertEqual(storage.count(), storage.count(None))
 
         # Check if count increases with additional objects of different classes
-        x = storage.count(State)
-        State(name='Bujumbura').save()
-        self.assertGreater(storage.count(State), x)
+        initial_state_count = storage.count(State)
+        State(name='Enugu').save()
+        self.assertGreater(storage.count(State), initial_state_count)
 
-        Amenity(name='Free Pool').save()
+        Amenity(name='Free WiFi').save()
         self.assertGreater(storage.count(), storage.count(State))
 
         # Check for expected errors
         with self.assertRaises(TypeError):
-            storage.count(State, 42)
+            storage.count(State, 'op')
