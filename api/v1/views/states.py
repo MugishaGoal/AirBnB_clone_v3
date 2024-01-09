@@ -31,9 +31,9 @@ def get_states(state_id=None):
     """Retrieve a State object by state_id"""
     all_states = storage.all(State).values()
     if state_id:
-        result = list(filter(lambda x: x.id == state_id, all_states))
-        if result:
-            return jsonify(result[0].to_dict())
+        res = list(filter(lambda x: x.id == state_id, all_states))
+        if res:
+            return jsonify(res[0].to_dict())
         raise NotFound()
     all_states = list(map(lambda x: x.to_dict(), all_states))
     return jsonify(all_states)
@@ -42,9 +42,9 @@ def get_states(state_id=None):
 def delete_state(state_id=None):
     """Delete a State object by state_id"""
     all_states = storage.all(State).values()
-    result = list(filter(lambda x: x.id == state_id, all_states))
-    if result:
-        storage.delete(result[0])
+    res = list(filter(lambda x: x.id == state_id, all_states))
+    if res:
+        storage.delete(res[0])
         storage.save()
         return jsonify({}), 200
     raise NotFound()
