@@ -53,9 +53,10 @@ class DBStorage:
 
     def get(self, cls, id):
         """Retrieve an object from the JSON file"""
-        if cls and id:
-            key = "{}.{}".format(cls.__name__, id)
-            return self.__objects.get(key)
+        obj = None
+        if cls is not None and issubclass(cls, BaseModel):
+            obj = self.__session.query(cls).filter(cls.id == id).first()
+        return obj
 
     def count(self, cls=None):
         """Retrieves the number of objects of a class"""
