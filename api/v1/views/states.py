@@ -1,65 +1,89 @@
 #!/usr/bin/python3
 """State views module"""
+from flask import jsonify, request
 from api.v1.views import app_views
-from flask import Flask, jsonify, abort, request
+from werkzeug.exceptions import NotFound, MethodNotAllowed, BadRequest
 from models import storage
 from models.state import State
-from models.city import City
-import json
 
 
-@app_views.route('/states', methods=['GET'], strict_slashes=False)
-def get_states():
-    """Retrieve the list of all State objects"""
-    states = storage.all(State).values()
-    states_list = [state.to_dict() for state in states]
-    return jsonify(states_list)
+METHODS_ALLOWED = ['GET', 'DELETE', 'POST', 'PUT']
+"""Methods for states endpoint"""
 
 
-@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
-def get_state(state_id):
+@app_views.route('/states', methods=METHODS_ALLOWED)
+@app_views.route('/states/<state_id>', methods=METHODS_ALLOWED)
+def manage_states(state_id=None):
+    """The method handls the states endpoint"""
+    managers = {
+        'GET': get_states,
+        'DELETE': remove_state,
+        'POST': add_state,
+        'PUT': update_state,
+    }
+    
+    method = request.method
+    if method in managers:
+        return managers[method](state_id)
+    else:
+        raise MethodNotAllowed(list(managers.keys()))
+
+
+def get_states(state_id=None):
     """Retrieve a State object by state_id"""
-    state = storage.get(State, state_id)
-    if state is None:
-        abort(404)
-    return jsonify(state.to_dict())
+    all_states = storage.all(State).values()
+    
+    if state_id:
+        result = next((x.to_dict() for x in all_states if x.id == state_id), None)
+        if result:
+            return jsonify(result)
+        raise NotFound()
+    
+    all_states = [x.to_dict() for x in all_states]
+    return jsonify(all_states)
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
-def delete_state(state_id):
+def delete_state(state_id=None):
     """Delete a State object by state_id"""
-    state = storage.get(State, state_id)
-    if state is None:
-        abort(404)
-    state.delete()
-    storage.save()
-    return jsonify({}), 200
+    all_states = storage.all(State).values()
+    state_to_delete = next((x for x in all_states if x.id == state_id), None)
+    
+    if state_to_delete:
+        storage.delete(state_to_delete)
+        storage.save()
+        return jsonify({}), 200
+    raise NotFound()
 
 
-@app_views.route('/states', methods=['POST'], strict_slashes=False)
-def create_state():
-    """Create a new State object"""
+def create_state(state_id=None):
+    """Create a new state object"""
     data = request.get_json()
-    if data is None:
-        abort(400, description="Not a JSON")
+    if not isinstance(data, dict):
+        raise BadRequest(description='Not a JSON')
     if 'name' not in data:
-        abort(400, description="Missing name")
+        raise BadRequest(description='Missing name')
+    
     new_state = State(**data)
     new_state.save()
     return jsonify(new_state.to_dict()), 201
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
-def update_state(state_id):
+def update_state(state_id=None):
     """Update a State object by state_id"""
-    state = storage.get(State, state_id)
-    if state is None:
-        abort(404)
-    data = request.get_json()
-    if data is None:
-        abort(400, description="Not a JSON")
-    for key, value in data.items():
-        if key not in ['id', 'created_at', 'updated_at']:
-            setattr(state, key, value)
-    state.save()
-    return jsonify(state.to_dict()), 200
+    xkeys = ('id', 'created_at', 'updated_at')
+    all_states = storage.all(State).values()
+    old_state = next((x for x in all_states if x.id == state_id), None)
+    
+    if old_state:
+        data = request.get_json()
+        if not isinstance(data, dict):
+            raise BadRequest(description='Not a JSON')
+        
+        for key, value in data.items():
+            if key not in xkeys:
+                setattr(old_state, key, value)
+        
+        old_state.save()
+        return jsonify(old_state.to_dict()), 200
+    
+    raise NotFound()
