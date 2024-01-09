@@ -46,9 +46,9 @@ def remove_state(state_id=None):
     '''Removes a state with the given id.
     '''
     all_states = storage.all(State).values()
-    res = list(filter(lambda x: x.id == state_id, all_states))
-    if res:
-        storage.delete(res[0])
+    result = list(filter(lambda x: x.id == state_id, all_states))
+    if result:
+        storage.delete(result[0])
         storage.save()
         return jsonify({}), 200
     raise NotFound()
