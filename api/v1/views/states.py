@@ -17,16 +17,16 @@ ALLOWED_METHODS = ['GET', 'DELETE', 'POST', 'PUT']
 def handle_states(state_id=None):
     '''The method handler for the states endpoint.
     '''
-    handlers = {
+    managers = {
         'GET': get_states,
         'DELETE': remove_state,
         'POST': add_state,
         'PUT': update_state,
     }
     if request.method in handlers:
-        return handlers[request.method](state_id)
+        return managers[request.method](state_id)
     else:
-        raise MethodNotAllowed(list(handlers.keys()))
+        raise MethodNotAllowed(list(managers.keys()))
 
 
 def get_states(state_id=None):
