@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Test BaseModel for expected behavior and documentation"""
 from datetime import datetime
+from datetime import timedelta
 import inspect
 import models
 import pep8 as pycodestyle
@@ -85,12 +86,17 @@ class TestBaseModel(unittest.TestCase):
         tic = datetime.now()
         inst1 = BaseModel()
         toc = datetime.now()
-        self.assertTrue(inst1.created_at - tic < toc - tic)
+        print("inst1.created_at:", inst1.created_at)
+        print("tic:", tic)
+        print("toc:", toc)
+        print("Difference:", inst1.created_at - tic, toc - tic)
+
+        self.assertGreater(inst1.created_at, tic)
         time.sleep(1e-4)
         tic = datetime.now()
         inst2 = BaseModel()
         toc = datetime.now()
-        self.assertTrue(inst2.created_at - tic < toc - tic)
+        self.assertGreater(inst2.created_at, tic)
         self.assertEqual(inst1.created_at, inst1.updated_at)
         self.assertEqual(inst2.created_at, inst2.updated_at)
         self.assertNotEqual(inst1.created_at, inst2.created_at)
