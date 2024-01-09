@@ -92,14 +92,16 @@ class TestFileStorage(unittest.TestCase):
         storage = models.storage
         state_instance = State(name='Colorado')
         state_instance.save()
-        
-        # Check if the retrieved object has the same attributes as the original object
+
+        # Check if the retrieved object has the same attributes as an original
         retrieved_state = storage.get(State, state_instance.id)
         self.assertEqual(state_instance.id, retrieved_state.id)
         self.assertEqual(state_instance.name, retrieved_state.name)
 
         # Check behavior for non-existent objects or invalid input
-        self.assertIsNot(state_instance, storage.get(State, state_instance.id + 42))
+        self.assertIsNot(
+                state_instance, storage.get(State, state_instance.id + 42)
+        )
         self.assertIsNone(storage.get(State, state_instance.id + 42))
         self.assertIsNone(storage.get(State, 45))
         self.assertIsNone(storage.get(None, state_instance.id))
