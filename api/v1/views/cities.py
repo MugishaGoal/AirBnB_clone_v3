@@ -11,8 +11,12 @@ from models.review import Review
 from models.state import State
 
 
-@app_views.route('/states/<state_id>/cities', methods=['GET', 'POST'])
-@app_views.route('/cities/<city_id>', methods=['GET', 'DELETE', 'PUT'])
+ALLOWED_METHODS = ['GET', 'DELETE', 'POST', 'PUT']
+'''Methods for the states endpoint.'''
+
+
+@app_views.route('/states/<state_id>/cities', methods=ALLOWED_METHODS)
+@app_views.route('/cities/<city_id>', methods=ALLOWED_METHODS)
 def handle_cities(state_id=None, city_id=None):
     '''The method handler of cities endpoint.
     '''
