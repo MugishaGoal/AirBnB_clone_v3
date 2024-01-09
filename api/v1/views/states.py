@@ -68,8 +68,8 @@ def add_state(state_id=None):
 
 
 def update_state(state_id=None):
-     '''Update a State object by state_id
-     '''
+    '''Updates the state with the given id.
+    '''
     xkeys = ('id', 'created_at', 'updated_at')
     all_states = storage.all(State).values()
     res = list(filter(lambda x: x.id == state_id, all_states))
