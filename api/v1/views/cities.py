@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Contains the cities view for the API.'''
+'''Contains the cities views for the API.'''
 from flask import jsonify, request
 from werkzeug.exceptions import NotFound, MethodNotAllowed, BadRequest
 
@@ -14,7 +14,7 @@ from models.state import State
 @app_views.route('/states/<state_id>/cities', methods=['GET', 'POST'])
 @app_views.route('/cities/<city_id>', methods=['GET', 'DELETE', 'PUT'])
 def handle_cities(state_id=None, city_id=None):
-    '''The method handler for the cities endpoint.
+    '''The method handler of cities endpoint.
     '''
     managers = {
         'GET': get_cities,
@@ -29,8 +29,8 @@ def handle_cities(state_id=None, city_id=None):
 
 
 def get_cities(state_id=None, city_id=None):
-    '''Gets the city with the given id or all cities in
-    the state with the given id.
+    '''Gets the city by the given id or all cities in
+    the state by the given id.
     '''
     if state_id:
         state = storage.get(State, state_id)
@@ -45,7 +45,7 @@ def get_cities(state_id=None, city_id=None):
 
 
 def remove_city(state_id=None, city_id=None):
-    '''Removes a city with the given id.
+    '''Removes a city by the given id.
     '''
     if city_id:
         city = storage.get(City, city_id)
@@ -81,7 +81,7 @@ def add_city(state_id=None, city_id=None):
 
 
 def update_city(state_id=None, city_id=None):
-    '''Updates the city with the given id.
+    '''Updates the city by the given id.
     '''
     un_keys = ('id', 'state_id', 'created_at', 'updated_at')
     if city_id:
