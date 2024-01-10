@@ -7,9 +7,12 @@ from api.v1.views import app_views
 from models import storage
 from models.user import User
 
+ALLOWED_METHODS = ['GET', 'DELETE', 'POST', 'PUT']
+'''Methods for the states endpoint.'''
 
-@app_views.route('/users', methods=['GET'])
-@app_views.route('/users/<user_id>', methods=['GET'])
+
+@app_views.route('/users', methods=ALLOWED_METHODS)
+@app_views.route('/users/<user_id>', methods=ALLOWED_METHODS)
 def get_users(user_id=None):
     '''Gets the user by the given id or all users.
     '''
@@ -35,7 +38,6 @@ def get_users(user_id=None):
     return jsonify(users)
 
 
-@app_views.route('/users/<user_id>', methods=['DELETE'])
 def remove_user(user_id):
     '''Removes a user by the given id.
     '''
@@ -47,7 +49,6 @@ def remove_user(user_id):
     raise NotFound()
 
 
-@app_views.route('/users', methods=['POST'])
 def add_user():
     '''Adds a new user.
     '''
@@ -72,7 +73,6 @@ def add_user():
     return jsonify(obj), 201
 
 
-@app_views.route('/users/<user_id>', methods=['PUT'])
 def update_user(user_id):
     '''Updates the user by the given id.
     '''
