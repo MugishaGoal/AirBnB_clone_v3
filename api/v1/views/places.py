@@ -90,14 +90,14 @@ def add_place(city_id=None, place_id=None):
 def update_place(city_id=None, place_id=None):
     '''Updates the place with the given id.
     '''
-    xkeys = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
+    un_keys = ('id', 'user_id', 'city_id', 'created_at', 'updated_at')
     place = storage.get(Place, place_id)
     if place:
         data = request.get_json()
         if type(data) is not dict:
             raise BadRequest(description='Not a JSON')
         for key, value in data.items():
-            if key not in xkeys:
+            if key not in un_keys:
                 setattr(place, key, value)
         place.save()
         return jsonify(place.to_dict()), 200
