@@ -1,21 +1,19 @@
 #!/usr/bin/python3
 '''Contains the places view for the API.'''
-from flask import jsonify, request, abort
-from models import storage
+from flask import jsonify, request
+from werkzeug.exceptions import NotFound, MethodNotAllowed, BadRequest
+
+from api.v1.views import app_views
+from models import storage, storage_t
 from models.amenity import Amenity
 from models.city import City
 from models.place import Place
 from models.state import State
 from models.user import User
-from api.v1.views import app_views
 
 
-ALLOWED_METHODS = ['GET', 'DELETE', 'POST', 'PUT']
-'''Methods for the states endpoint.'''
-
-
-@app_views.route('/cities/<city_id>/places', methods=ALLOWED_METHODS, strict_slashes=False)
-@app_views.route('/places/<place_id>', methods=ALLOWED_METHODS, strict_slashes=False)
+@app_views.route('/cities/<city_id>/places', methods=['GET', 'POST'])
+@app_views.route('/places/<place_id>', methods=['GET', 'DELETE', 'PUT'])
 def handle_places(city_id=None, place_id=None):
     '''The method handler for the places endpoint.
     '''
@@ -28,7 +26,7 @@ def handle_places(city_id=None, place_id=None):
     if request.method in handlers:
         return handlers[request.method](city_id, place_id)
     else:
-        abort(405, description=f'Method {request.method} Not Allowed')
+        raise MethodNotAllowed(list(handlers.keys()))
 
 
 def get_places(city_id=None, place_id=None):
@@ -38,13 +36,21 @@ def get_places(city_id=None, place_id=None):
     if city_id:
         city = storage.get(City, city_id)
         if city:
-            places = city.places
-            return jsonify([place.to_dict() for place in places])
+            all_places = []
+            if storage_t == 'db':
+                all_places = list(city.places)
+            else:
+                all_places = list(filter(
+                    lambda x: x.city_id == city_id,
+                    storage.all(Place).values()
+                ))
+            places = list(map(lambda x: x.to_dict(), all_places))
+            return jsonify(places)
     elif place_id:
         place = storage.get(Place, place_id)
         if place:
             return jsonify(place.to_dict())
-    abort(404)
+    raise NotFound()
 
 
 def remove_place(city_id=None, place_id=None):
@@ -56,7 +62,7 @@ def remove_place(city_id=None, place_id=None):
             storage.delete(place)
             storage.save()
             return jsonify({}), 200
-    abort(404)
+    raise NotFound()
 
 
 def add_place(city_id=None, place_id=None):
@@ -64,17 +70,17 @@ def add_place(city_id=None, place_id=None):
     '''
     city = storage.get(City, city_id)
     if not city:
-        abort(404)
+        raise NotFound()
     data = request.get_json()
     if type(data) is not dict:
-        abort(400, description='Not a JSON')
+        raise BadRequest(description='Not a JSON')
     if 'user_id' not in data:
-        abort(400, description='Missing user_id')
+        raise BadRequest(description='Missing user_id')
     user = storage.get(User, data['user_id'])
     if not user:
-        abort(404)
+        raise NotFound()
     if 'name' not in data:
-        abort(400, description='Missing name')
+        raise BadRequest(description='Missing name')
     data['city_id'] = city_id
     new_place = Place(**data)
     new_place.save()
@@ -89,22 +95,22 @@ def update_place(city_id=None, place_id=None):
     if place:
         data = request.get_json()
         if type(data) is not dict:
-            abort(400, description='Not a JSON')
+            raise BadRequest(description='Not a JSON')
         for key, value in data.items():
             if key not in xkeys:
                 setattr(place, key, value)
         place.save()
         return jsonify(place.to_dict()), 200
-    abort(404)
+    raise NotFound()
 
 
-@app_views.route('/places_search', methods=['POST'], strict_slashes=False)
+@app_views.route('/places_search', methods=['POST'])
 def find_places():
     '''Finds places based on a list of State, City, or Amenity ids.
     '''
     data = request.get_json()
     if type(data) is not dict:
-        abort(400, description='Not a JSON')
+        raise BadRequest(description='Not a JSON')
     all_places = storage.all(Place).values()
     places = []
     places_id = []
