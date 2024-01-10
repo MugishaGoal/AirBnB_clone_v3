@@ -106,7 +106,7 @@ def update_place(city_id=None, place_id=None):
 
 @app_views.route('/places_search', methods=['POST'])
 def find_places():
-    '''Finds places based on a list of State, City, or Amenity ids.
+    '''Finds places according to list of State, City, or Amenity id.
     '''
     data = request.get_json()
     if type(data) is not dict:
