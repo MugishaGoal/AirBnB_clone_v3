@@ -7,7 +7,10 @@ from models.city import City
 from models.user import User
 from api.v1.views import app_views
 
+
 ALLOWED_METHODS = ['GET', 'DELETE', 'POST', 'PUT']
+'''Methods for the states endpoint.'''
+
 
 @app_views.route('/cities/<city_id>/places', methods=['GET'], strict_slashes=False)
 def get_places(city_id):
@@ -18,6 +21,7 @@ def get_places(city_id):
         abort(404)
     places = [place.to_dict() for place in city.places]
     return jsonify(places)
+
 
 @app_views.route('/places/<place_id>', methods=ALLOWED_METHODS, strict_slashes=False)
 def handle_places(place_id):
@@ -34,6 +38,7 @@ def handle_places(place_id):
     else:
         abort(405, description=f'Method {request.method} Not Allowed')
 
+
 def get_place(place_id):
     '''Gets the place with the given id.
     '''
@@ -41,6 +46,7 @@ def get_place(place_id):
     if place is None:
         abort(404)
     return jsonify(place.to_dict())
+
 
 def remove_place(place_id):
     '''Removes a place with the given id.
@@ -51,6 +57,7 @@ def remove_place(place_id):
     storage.delete(place)
     storage.save()
     return jsonify({}), 200
+
 
 def add_place(city_id):
     '''Adds a new place to a city.
@@ -71,6 +78,7 @@ def add_place(city_id):
     new_place = Place(city_id=city.id, user_id=user.id, **data)
     new_place.save()
     return jsonify(new_place.to_dict()), 201
+
 
 def update_place(place_id):
     '''Updates the place with the given id.
