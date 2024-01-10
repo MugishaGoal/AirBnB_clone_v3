@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Contains the users view for the API.'''
+'''Contains the users views for the API.'''
 from flask import jsonify, request
 from werkzeug.exceptions import NotFound, BadRequest
 
@@ -11,7 +11,7 @@ from models.user import User
 @app_views.route('/users', methods=['GET'])
 @app_views.route('/users/<user_id>', methods=['GET'])
 def get_users(user_id=None):
-    '''Gets the user with the given id or all users.
+    '''Gets the user by the given id or all users.
     '''
     if user_id:
         user = storage.get(User, user_id)
@@ -37,7 +37,7 @@ def get_users(user_id=None):
 
 @app_views.route('/users/<user_id>', methods=['DELETE'])
 def remove_user(user_id):
-    '''Removes a user with the given id.
+    '''Removes a user by the given id.
     '''
     user = storage.get(User, user_id)
     if user:
@@ -74,7 +74,7 @@ def add_user():
 
 @app_views.route('/users/<user_id>', methods=['PUT'])
 def update_user(user_id):
-    '''Updates the user with the given id.
+    '''Updates the user by the given id.
     '''
     un_keys = ('id', 'email', 'created_at', 'updated_at')
     user = storage.get(User, user_id)
