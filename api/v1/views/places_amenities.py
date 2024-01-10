@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Contains the places_amenities view for the API.'''
+'''Contains the places_amenities views for the API.'''
 from flask import jsonify, request, abort
 from api.v1.views import app_views
 from models import storage
@@ -11,7 +11,7 @@ from models.amenity import Amenity
 @app_views.route('/places/<place_id>/amenities/<amenity_id>',
                  methods=['DELETE', 'POST'])
 def handle_places_amenities(place_id=None, amenity_id=None):
-    '''The method handler for the places_amenities endpoint.
+    '''The method handlers of the places_amenities endpoint.
     '''
     place = storage.get(Place, place_id)
     if not place:
