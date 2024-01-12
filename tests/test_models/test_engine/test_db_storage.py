@@ -91,7 +91,7 @@ class TestFileStorage(unittest.TestCase):
         """Test that the get method retrieves objects by ID from storage."""
         # Initialize storage and create a State object for testing
         storage = models.storage
-        obj = State(name='Michigan')
+        obj = State(name='Colorado')
         obj.save()
 
         # Check if get method retrieves the correct object by ID
@@ -99,15 +99,15 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(obj.name, storage.get(State, obj.id).name)
 
         # Check behavior for non-existent objects or invalid input
-        self.assertIsNot(obj, storage.get(State, obj.id + 'op'))
-        self.assertIsNone(storage.get(State, obj.id + 'op'))
+        self.assertIsNot(obj, storage.get(State, obj.id + 'ul'))
+        self.assertIsNone(storage.get(State, obj.id + 'ul'))
         self.assertIsNone(storage.get(State, 45))
         self.assertIsNone(storage.get(None, obj.id))
         self.assertIsNone(storage.get(int, obj.id))
 
         # Check for expected errors
         with self.assertRaises(TypeError):
-            storage.get(State, obj.id, 'op')
+            storage.get(State, obj.id, 'ul')
         with self.assertRaises(TypeError):
             storage.get(State)
         with self.assertRaises(TypeError):
@@ -128,18 +128,18 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(storage.count(), storage.count(None))
 
         # Check if count increases when objects are added
-        State(name='Lagos').save()
+        State(name='Arizona').save()
         self.assertGreater(storage.count(State), 0)
         self.assertEqual(storage.count(), storage.count(None))
 
         # Check if count increases with additional objects of different classes
         initial_state_count = storage.count(State)
-        State(name='Enugu').save()
+        State(name='Kigali').save()
         self.assertGreater(storage.count(State), initial_state_count)
 
-        Amenity(name='Free WiFi').save()
+        Amenity(name='Gym membership').save()
         self.assertGreater(storage.count(), storage.count(State))
 
         # Check for expected errors
         with self.assertRaises(TypeError):
-            storage.count(State, 'op')
+            storage.count(State, 'ul')
